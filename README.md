@@ -1,4 +1,3 @@
-# DOCKERHUB-SCANNER
 
 <div align="center">
 
