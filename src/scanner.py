@@ -41,8 +41,13 @@ def scan_image(image_name: str):
         "infected_files_detected": "Infected files found" in clam_output
     }
 
-    # Step 3: Engage Gemini Pro Thinking AI Analyzer
-    ai_assessment = analyze_security_findings(image_name, trivy_data, file_scan_summary)
+    # Step 3: Engage Gemini AI Analyzer.
+    # Never hard-fail the pipeline on AI issues (bad key, retired model, ...):
+    # Trivy + ClamAV are the ground truth, the AI is enrichment.
+    try:
+        ai_assessment = analyze_security_findings(image_name, trivy_data, file_scan_summary)
+    except Exception as e:
+        ai_assessment = f"AI analysis skipped ({e}). Verdict from Trivy + ClamAV only."
 
     # Step 4: Generate reports and enforce security policy
     save_report(image_name, ai_assessment, trivy_data, file_scan_summary)
@@ -56,6 +61,8 @@ def scan_image(image_name: str):
     if "MALICIOUS" in ai_assessment or file_scan_summary["infected_files_detected"]:
         print("[CRITICAL ALERT: Malicious traits identified. Installation blocked.]")
         sys.exit(1)
+    elif ai_assessment.startswith("AI analysis skipped"):
+        print("Image passed Trivy + ClamAV. AI assessment unavailable.")
     else:
         print("Image verified safe. Cleared for local installation.")
 
