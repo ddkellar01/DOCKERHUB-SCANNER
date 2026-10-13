@@ -27,5 +27,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y clamav clamav-freshclam trivy
 
+      - name: Debug - List Repository Files
+        run: find . -maxdepth 3 -not -path '*/.*'
+
       - name: Execute DOCKERHUB-SCANNER
         run: python scanner.py credkellar/dockerhub-scanner:latest
