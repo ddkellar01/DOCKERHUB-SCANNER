@@ -32,4 +32,6 @@ jobs:
           find "$GITHUB_WORKSPACE/src" -type f -name "*.py" -exec sed -i -e 's/\r$//' {} +
 
       - name: Execute DOCKERHUB-SCANNER
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python "$GITHUB_WORKSPACE/src/scanner.py" credkellar/dockerhub-scanner:latest
