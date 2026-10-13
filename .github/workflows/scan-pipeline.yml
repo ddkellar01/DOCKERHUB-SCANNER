@@ -31,4 +31,4 @@ jobs:
         run: find . -maxdepth 3 -not -path '*/.*'
 
       - name: Execute DOCKERHUB-SCANNER
-        run: python scanner.py credkellar/dockerhub-scanner:latest
+        run: python src/scanner.py credkellar/dockerhub-scanner:latest
