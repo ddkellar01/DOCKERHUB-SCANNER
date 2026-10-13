@@ -34,4 +34,5 @@ jobs:
       - name: Execute DOCKERHUB-SCANNER
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          REPORTS_DIR: ${{ github.workspace }}/reports
         run: python "$GITHUB_WORKSPACE/src/scanner.py" credkellar/dockerhub-scanner:latest
