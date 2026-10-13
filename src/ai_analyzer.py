@@ -5,11 +5,11 @@ from google.genai import types
 
 def analyze_security_findings(image_name: str, trivy_report: dict, file_scan_summary: dict) -> str:
     """
-    Sends container artifacts and scan telemetry to Gemini Pro using thinking mode 
-    for advanced adversarial reasoning.
+    Sends container artifacts and scan telemetry to Gemini for
+    advanced adversarial reasoning.
     """
     client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
-    
+
     prompt = f"""
     You are an elite container security expert and malware reversing analyst. Evaluate the telemetry for Docker Hub image: '{image_name}'.
 
@@ -29,12 +29,11 @@ def analyze_security_findings(image_name: str, trivy_report: dict, file_scan_sum
     """
 
     response = client.models.generate_content(
-        model='gemini-2.5-pro',
+        model='gemini-2.0-flash',
         contents=prompt,
         config=types.GenerateContentConfig(
             temperature=0.1,
-            thinking_config=types.ThinkingConfig(thinking_budget=2048)
         )
     )
-    
+
     return response.text
