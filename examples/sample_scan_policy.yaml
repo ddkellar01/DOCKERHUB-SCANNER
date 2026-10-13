@@ -1,0 +1,14 @@
+# DOCKERHUB-SCANNER Policy Rulebook
+policy_version: "1.0"
+enforcement:
+  block_on_critical_vulns: true
+  max_allowed_critical: 0
+  max_allowed_high: 3
+  require_clamav_clean: true
+  enforce_ai_verdict: "MALICIOUS" # Options: STRICT (block on suspicious), STANDARD (block on malicious only)
+
+# Whitelisted official base images exempted from certain heuristic warnings
+whitelisted_images:
+  - "library/alpine:latest"
+  - "library/python:3.11-slim"
+  - "library/ubuntu:24.04"
