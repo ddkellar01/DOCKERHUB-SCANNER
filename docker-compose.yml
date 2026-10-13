@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  scanner:
+    build: .
+    image: dockerhub-scanner:latest
+    container_name: dockerhub_security_scanner
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./reports:/app/reports
+    command: ["library/alpine:latest"]
