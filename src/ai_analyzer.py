@@ -29,7 +29,7 @@ def analyze_security_findings(image_name: str, trivy_report: dict, file_scan_sum
     """
 
     response = client.models.generate_content(
-        model='gemini-2.0-flash',
+        model='gemini-3-flash',
         contents=prompt,
         config=types.GenerateContentConfig(
             temperature=0.1,
