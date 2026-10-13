@@ -35,7 +35,7 @@ def scan_image(image_name: str):
 
     # Run ClamAV scanner
     clam_output = run_command(["clamscan", "-r", "--infected", config.scan_target_dir])
-    
+
     file_scan_summary = {
         "clam_logs": clam_output.splitlines()[-10:] if clam_output else "No output",
         "infected_files_detected": "Infected files found" in clam_output
