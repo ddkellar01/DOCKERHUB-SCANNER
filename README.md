@@ -77,3 +77,62 @@ Enterprise-grade automated container security framework designed to intercept, e
 - **Multi-Engine Static Scanning:** Combines Trivy (SBOM, secrets, CVE vulnerability scanner) with ClamAV (malware & virus signature engine).
 - **Gemini Pro Thinking Heuristics:** Employs advanced reasoning budgets to analyze telemetry for zero-day supply chain compromises, obfuscated backdoor scripts, and suspicious configuration anomalies.
 - **Automated Enforcement:** Instantly blocks deployment if high-risk malware signatures or malicious verdicts are returned.
+
+🐳 What is this?
+Imagine you are ordering a mystery toy box online. Before you open it in your house, you want to make sure there are no scary bugs or trapdoors inside. This program is like a super-smart robotic security guard that checks internet toy boxes (called containers) before you let them into your computer!
+
+🔍 What is this about?
+It is about keeping your computer safe. Sometimes, bad people hide sneaky computer germs (like viruses, spyware, or ransomware) inside normal-looking computer tools on the internet. This project makes sure those bad germs get caught and thrown away before they can hurt anything.
+
+⚡ What this does?
+1. Grabs the Box: It downloads a container package from a safe holding place (Docker Hub) but keeps it locked in a safe sandbox cage.
+2. Scans for Germs: It uses special magnifying-glass tools (called Trivy and ClamAV) to search every corner for known bad codes or safety holes.
+3. Asks the AI Brain: It sends the clues to a smart AI brain (Gemini Pro) to think deeply and guess if the tool is acting shady or trying to trick you.
+4. Blocks the Bad Stuff: If it finds anything dangerous, it instantly blocks it and says: "Nope! You are not coming into this computer!" If it's clean, it lets you use it safely.
+
+🛠️ What problems this solves?
+- Stops hackers from sneaking hidden viruses onto your computer through downloaded software tools.
+- Saves you from getting hacked or having your files locked up by bad programs.
+- Automates safety checks so humans don't have to check every single file by hand.
+
+⚠️ What problems can this create?
+- Slows things down a little bit: Because it checks everything so super carefully, it might take a few extra seconds before you can use your tool.
+- False alarms: Sometimes the security guard might get confused and think a totally safe tool is dangerous, blocking it by mistake until you double-check it.
+
+🎒 Requirements?
+To use this, you need:
+- A computer (running Linux, Mac, or Windows).
+- Docker installed so you can run containers.
+- An internet connection to download the scanner and the tools you want to check.
+
+📝 Step-by-Step: How to install this
+Clone the code: Download the project files from GitHub onto your computer using your terminal:
+
+git clone [https://github.com/ddkellar01/DOCKERHUB-SCANNER.git](https://github.com/ddkellar01/DOCKERHUB-SCANNER.git)
+cd DOCKERHUB-SCANNER
+
+Set up your settings: Copy the example secret configuration file so you can add your keys:
+
+cp .env.example .env
+
+Turn on the security pipeline: Fire up the program using Docker Compose:
+
+docker compose up --build
+
+🌲 Full Project Tree
+
+📁 DOCKERHUB-SCANNER/
+├── 📁 .github/
+│   └── 📁 workflows/
+│       └── ⚙️ ci-cd.yml
+├── 📁 src/
+│   ├── 🐍 main.py
+│   ├── 🦀 scanner_core/
+│   └── 🐹 analyzer/
+├── 📁 configs/
+│   └── 📄 settings.yaml
+├── 🐳 Dockerfile
+├── 🐙 docker-compose.yml
+├── 🔒 .env.example
+├── 📜 LICENSE
+└── 📖 README.md
