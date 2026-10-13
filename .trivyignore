@@ -1,0 +1,4 @@
+# .trivyignore - Ignore non-exploitable or upstream base image false positives
+# Format: CVE-ID # Reason for ignoring / Expiry date
+
+# Example: CVE-2026-0000 # Low risk in isolated scratch container - Review 2026-12-31
