@@ -1,0 +1,68 @@
+import sys
+import subprocess
+import json
+import os
+from config import config
+from ai_analyzer import analyze_security_findings
+from reporter import save_report
+
+def run_command(command: list) -> str:
+    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    return result.stdout
+
+def scan_image(image_name: str):
+    print(f"[*] Initializing DOCKERHUB-SCANNER for target: {image_name}")
+
+    # Step 1: Trivy vulnerability & secret analysis
+    print("[*] Running Trivy vulnerability and secret scanner...")
+    trivy_cmd = ["trivy", "image", "--format", "json", "--scanners", "vuln,secret,misconfig", image_name]
+    trivy_raw = run_command(trivy_cmd)
+    
+    try:
+        trivy_data = json.loads(trivy_raw)
+    except json.JSONDecodeError:
+        trivy_data = {"error": "Failed to parse Trivy output", "raw": trivy_raw[:1000]}
+
+    # Step 2: Extract container filesystem for ClamAV inspection
+    print("[*] Extracting container layers for ClamAV malware/ransomware inspection...")
+    os.makedirs(config.scan_target_dir, exist_ok=True)
+    
+    run_command(["docker", "pull", image_name])
+    container_id = run_command(["docker", "create", image_name]).strip()
+    if container_id:
+        run_command(["docker", "export", container_id, "-o", f"{config.scan_target_dir}/container.tar"])
+        run_command(["docker", "rm", container_id])
+    
+    # Run ClamAV scanner
+    print("[*] Running ClamAV virus signatures scan...")
+    clam_output = run_command(["clamscan", "-r", "--infected", config.scan_target_dir])
+    
+    file_scan_summary = {
+        "clamav_logs": clam_output.splitlines()[-10:] if clam_output else ["No output"],
+        "infected_files_detected": "Infected files found" in clam_output
+    }
+
+    # Step 3: Engage Gemini Pro Thinking AI Analyzer
+    print("[*] Engaging Gemini Pro thinking model for deep heuristic threat correlation...")
+    ai_assessment = analyze_security_findings(image_name, trivy_data, file_scan_summary)
+
+    # Step 4: Generate reports and enforce security policy
+    save_report(image_name, ai_assessment, trivy_data, file_scan_summary)
+
+    print("\n" + "="*60)
+    print("DOCKERHUB-SCANNER SECURITY VERDICT")
+    print("="*60)
+    print(ai_assessment)
+    print("="*60)
+
+    if "MALICIOUS" in ai_assessment or file_scan_summary["infected_files_detected"]:
+        print("\n[!] CRITICAL ALERT: Malicious traits identified. Installation blocked.")
+        sys.exit(1)
+    else:
+        print("\n[+] Image verified safe. Cleared for local installation.")
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Usage: python src/scanner.py <dockerhub_image_name>")
+        sys.exit(1)
+    scan_image(sys.argv[1])
