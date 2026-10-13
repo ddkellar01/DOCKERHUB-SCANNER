@@ -3,6 +3,16 @@ import json
 from google import genai
 from google.genai import types
 
+# Google has been churning model names (2.5-pro-preview -> 2.0-flash -> 3-flash,
+# each 404ing in turn, and the API's own "use X instead" advice keeps being
+# wrong). So: try candidates in order, skip the ones the API rejects.
+MODEL_CANDIDATES = [
+    "gemini-2.5-flash",
+    "gemini-2.0-flash",
+    "gemini-3-flash",
+    "gemini-flash-latest",
+]
+
 def analyze_security_findings(image_name: str, trivy_report: dict, file_scan_summary: dict) -> str:
     """
     Sends container artifacts and scan telemetry to Gemini for
@@ -28,12 +38,25 @@ def analyze_security_findings(image_name: str, trivy_report: dict, file_scan_sum
     4. **Recommendation:** Final approval or block directive.
     """
 
-    response = client.models.generate_content(
-        model='gemini-3-flash',
-        contents=prompt,
-        config=types.GenerateContentConfig(
-            temperature=0.1,
-        )
-    )
+    config = types.GenerateContentConfig(temperature=0.1)
 
-    return response.text
+    last_err = None
+    for model in MODEL_CANDIDATES:
+        try:
+            response = client.models.generate_content(
+                model=model,
+                contents=prompt,
+                config=config,
+            )
+            return response.text
+        except Exception as e:
+            # Model doesn't exist (anymore) -> try the next candidate.
+            # Anything else (bad key, quota, ...) -> fail fast, retrying won't help.
+            if "404" in str(e) or "NOT_FOUND" in str(e):
+                last_err = e
+                continue
+            raise
+
+    raise RuntimeError(
+        f"No working Gemini model from candidates {MODEL_CANDIDATES}. Last error: {last_err}"
+    )
